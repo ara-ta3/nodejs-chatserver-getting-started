@@ -1,8 +1,9 @@
-var ws = require('websocket.io');
-var server = ws.listen(8888, function () {
-    console.log('\033[96m Server running at 172.16.145.136:8888 \033[39m');
+var ws = require('websocket.io'),
+    host = "localhost",
+    port = 8888;
+var server = ws.listen(port, function () {
+    console.log('\033[96m Server running at '+ host + ":" + port +' \033[39m');
 });
-
 var mysql = require('mysql');
 var connection = mysql.createConnection({
     host : "localhost",
@@ -10,7 +11,6 @@ var connection = mysql.createConnection({
     password : ""
 });
 connection.connect();
-
 connection.query('USE test');
 
 //コネクションクローズ
@@ -22,7 +22,13 @@ server.on('connection', function(socket) {
         data.time = d.getFullYear()  + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
         var userName = data.user;
         connection.query(
-            'INSERT INTO nodetest SET name = ?;', userName, function(err) {console.log(err);data.err=err;}
+            'INSERT INTO nodetest SET name = ?;', [userName], function(err) {
+                data.err = null;
+                if( !err ) {
+                    console.log(err);
+                    data.err = err;
+                }
+            }
         );
         data = JSON.stringify(data);
         server.clients.forEach(function(client) {
@@ -30,4 +36,7 @@ server.on('connection', function(socket) {
         });
     });
 });
-//connection.end();
+
+server.on('close', function (code,desc) {
+    console.log("end");
+});

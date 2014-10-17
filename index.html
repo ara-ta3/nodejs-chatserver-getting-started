@@ -44,6 +44,7 @@
                 $('<i/>').addClass('icon-user'),
                     $('<small/>').addClass('meta chat-time').append(data.time))
                         );
+                        console.log(event.data);
 
         // pushされたメッセージを解釈し、要素を生成する
         if (data.type === 'join') {
